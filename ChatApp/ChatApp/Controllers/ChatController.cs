@@ -1,48 +1,43 @@
-﻿using ChatApp.Models.Message;
-using ChatApp.Models;
+﻿using ChatApp.Models;
+using ChatApp.Models.Message;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.Controllers
 {
-    public class ChatController:Controller
+    public class ChatController : Controller
     {
-        private static List<KeyValuePair<string, string>> _messages = new List<KeyValuePair<string, string>>();
+        //Fields
+        private static List<KeyValuePair<string, string>> s_messages = new List<KeyValuePair<string, string>>();
 
-       
-
+        //Methods
         public IActionResult Show()
         {
-            if (_messages.Count < 1)
+            if (s_messages.Count() < 1)
             {
-                // If there are no messages, return an empty view.
-                return View(new ChatViewModel { Messages = new List<MessageViewModel>() });
+                return View(new ChatViewModel());
             }
 
-            var chatModel = new ChatViewModel
+            var chatModel = new ChatViewModel()
             {
-                Messages = _messages
-                    .Select(m => new MessageViewModel
-                    {
-                        Sender = m.Key,
-                        MessageText = m.Value
-                    })
-                    .ToList()
+                Messages = s_messages
+                .Select(m => new MessageViewModel()
+                {
+                    Sender = m.Key,
+                    MessageText = m.Value
+                })
+                .ToList()
             };
 
             return View(chatModel);
         }
+
         [HttpPost]
         public IActionResult Send(ChatViewModel chat)
         {
-            if (chat != null && chat.CurrentMessage != null)
-            {
-                var newMessage = chat.CurrentMessage;
-                _messages.Add(new KeyValuePair<string, string>(newMessage.Sender, newMessage.MessageText));
-            }
+            var newMessage = chat.CurrentMessage;
 
-            // Redirect to the Show action after sending a message.
+            s_messages.Add(new KeyValuePair<string, string>(newMessage.Sender, newMessage.MessageText));
             return RedirectToAction("Show");
         }
-
     }
 }
